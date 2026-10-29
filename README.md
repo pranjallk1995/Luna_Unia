@@ -15,6 +15,10 @@ app to go to it; the shared sign-in means it opens without signing in again.
 It has a UI only: no MCP service, no database, and no model calls. It reads nothing
 from the apps except whether they answer.
 
+<p align="center">
+  <img src="docs/showcase.png" alt="Luna Unia showing all seven Luna stacks running, each card linking to its app">
+</p>
+
 ## Architecture
 
 ### Luna ecosystem
