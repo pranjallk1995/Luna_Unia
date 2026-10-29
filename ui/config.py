@@ -65,7 +65,7 @@ def _app(key: str, name: str, description: str, ui_port: int) -> LunaApp:
 LUNA_APPS: tuple[LunaApp, ...] = (
     _app("visia", "Luna Visia", "Private image library. A local vision model captions and tags every upload, so assistants can search, edit, and share images.", 18501),
     _app("vita", "Luna Vita", "Nutrition, body measurements, and workouts, with daily targets and food logged from a chat.", 18502),
-    _app("lumia", "Luna Lumia", "Smart-light control for WiZ bulbs: rooms, scenes, schedules, and weather-driven lighting schemes.", 18503),
+    _app("lumia", "Luna Lumia", "Smart-light control for WiZ bulbs: rooms, scenes, schedules, and lighting that follows the weather or the music.", 18503),
     _app("fiora", "Luna Fiora", "Personal finance from bank messages: income, spending, savings, categories, and cash flow by month.", 18504),
     _app("lexia", "Luna Lexia", "Vault for payslips, statements, and tax proofs, read and classified locally with their details extracted.", 18505),
     _app("vibia", "Luna Vibia", "Music library that listens to every track, captions and tags it, and builds playlists for a mood.", 18506),
