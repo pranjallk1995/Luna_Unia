@@ -55,7 +55,7 @@ class AppGrid:
         if not status.can_open:
             return f'<div class="{classes}" aria-disabled="true">{body}<div class="lu-link"><span>{html.escape(host)}</span></div></div>'
         return (
-            f'<a class="{classes}" href="{html.escape(app.url)}" target="_self" aria-label="Open {html.escape(app.name)}">'
+            f'<a class="{classes}" href="{html.escape(app.url)}" target="_blank" rel="noopener" aria-label="Open {html.escape(app.name)}">'
             f'{body}<div class="lu-link"><span>{html.escape(host)}</span>{OPEN_ICON}</div></a>'
         )
 
