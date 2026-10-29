@@ -1,0 +1,45 @@
+services:
+  ui:
+    build: ./ui
+    image: ghcr.io/pranjallk1995/luna-unia-ui:latest
+    working_dir: /workspace/ui
+    restart: unless-stopped
+    environment:
+      LUNA_SSO_URL: ${LUNA_SSO_URL:?Set LUNA_SSO_URL to Luna Sentia's public sign-on address}
+      LUNA_SSO_INTERNAL_URL: ${LUNA_SSO_INTERNAL_URL:-http://luna-sentia-auth:8000}
+      LUNAUNIA_ALLOWED_EMAILS: ${LUNAUNIA_ALLOWED_EMAILS:?Set LUNAUNIA_ALLOWED_EMAILS to the Google accounts allowed to access Unia}
+      # Where browsers open each app: LUNA<APP>_URL, else the template, else its localhost port.
+      LUNAUNIA_URL_TEMPLATE: ${LUNAUNIA_URL_TEMPLATE:-}
+      LUNAVISIA_URL: ${LUNAVISIA_URL:-}
+      LUNAVITA_URL: ${LUNAVITA_URL:-}
+      LUNALUMIA_URL: ${LUNALUMIA_URL:-}
+      LUNAFIORA_URL: ${LUNAFIORA_URL:-}
+      LUNALEXIA_URL: ${LUNALEXIA_URL:-}
+      LUNAVIBIA_URL: ${LUNAVIBIA_URL:-}
+      LUNASENTIA_URL: ${LUNASENTIA_URL:-}
+    ports:
+      - "127.0.0.1:42069:8501"
+    develop:
+      watch:
+        - action: sync
+          path: ./ui
+          target: /workspace/ui
+          ignore:
+            - __pycache__/
+            - "*.py[cod]"
+            - .pytest_cache/
+            - requirements.txt
+            - Dockerfile
+        - action: rebuild
+          path: ./ui/requirements.txt
+        - action: rebuild
+          path: ./ui/Dockerfile
+    networks:
+      sentia_network:
+        aliases:
+          - luna-unia-ui
+
+networks:
+  sentia_network:
+    external: true
+    name: luna_sentia_network
