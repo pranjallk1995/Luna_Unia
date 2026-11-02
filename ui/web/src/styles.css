@@ -615,6 +615,16 @@ a.lu-card:hover .lu-link svg {
   }
 }
 
+@media (min-width: 1760px) {
+  .lv-page:not(.lv-gate) {
+    max-width: 1720px;
+  }
+
+  .lu-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1000px) {
   .lu-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
