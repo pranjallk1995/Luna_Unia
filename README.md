@@ -25,7 +25,7 @@ from the apps except whether they answer.
 
 ![Luna ecosystem architecture](docs/luna-ecosystem.svg)
 
-Every Luna app is a Streamlit UI plus a FastMCP service on Luna Sentia's
+Every Luna app is a React UI plus a FastMCP service on Luna Sentia's
 `luna_sentia_network`: its data lives in Sentia's PostgreSQL, people sign in
 through Sentia's `auth`, and model calls go to Sentia's Ollama. Orange lines are
 Visia image URLs that other apps use: food images for Vita, room images for
@@ -37,7 +37,7 @@ beats of the track Vibia plays, which Lumia's lights follow.
 
 | Component | Technology | Purpose |
 | --- | --- | --- |
-| UI (`luna-unia-ui`, `:42069`) | Streamlit, httpx | App cards with live status; each running app's card opens it |
+| UI (`luna-unia-ui`, `:42069`) | React + TypeScript (Vite), served by a Starlette gateway | App cards with live status; each running app's card opens it |
 | Sign-in | Luna Sentia's `auth` | The shared `luna_sso` session, plus Unia's own allowlist |
 
 ## How detection works
@@ -47,7 +47,7 @@ they answer (2 seconds at most each):
 
 | Stack | Checks | Card opens |
 | --- | --- | --- |
-| Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health`, then `http://luna-<app>-mcp:8000/health` | The app's UI |
+| Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
 | Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), and models (`luna-sentia-ollama:11434/api/version`) | Adminer |
 
 - **Running:** every check answers. The card opens the app.

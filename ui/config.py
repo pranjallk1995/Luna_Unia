@@ -1,4 +1,4 @@
-"""Validated presentation and service settings for the Streamlit UI."""
+"""Validated settings for the UI gateway and the browser app it serves."""
 
 import os
 from dataclasses import dataclass
@@ -17,6 +17,7 @@ class SSOConfig:
     # in another app takes effect here within this many seconds.
     RECHECK_SECONDS: ClassVar[int] = 60
     LOOKUP_TIMEOUT_SECONDS: ClassVar[float] = 5.0
+    SESSION_CACHE_ENTRIES: ClassVar[int] = 256
 
     public_url: str
     internal_url: str = "http://luna-sentia-auth:8000"
@@ -45,7 +46,7 @@ class LunaApp:
 
     @property
     def icon_path(self) -> Path:
-        return UIConfig.UI_ROOT / "assets" / "apps" / f"{self.key}.png"
+        return UIConfig.STATIC_DIR / "apps" / f"{self.key}.png"
 
 
 def _app(key: str, name: str, description: str, ui_port: int) -> LunaApp:
@@ -54,6 +55,7 @@ def _app(key: str, name: str, description: str, ui_port: int) -> LunaApp:
         name=name,
         description=description,
         checks=(
+            # Every app answers here, Streamlit or React, until the React branches are all merged.
             ("UI", f"http://luna-{key}-ui:8501/_stcore/health"),
             ("MCP", f"http://luna-{key}-mcp:8000/health"),
         ),
@@ -85,14 +87,21 @@ LUNA_APPS: tuple[LunaApp, ...] = (
 
 @dataclass(frozen=True)
 class UIConfig:
-    """Immutable UI layout and service-detection settings."""
+    """Immutable gateway and service-detection settings."""
 
     UI_ROOT: ClassVar[Path] = Path(__file__).resolve().parent
-    LOGO_PATH: ClassVar[Path] = UI_ROOT / "assets" / "lunaunia_logo.png"
+    # The built React app; the Dockerfile puts it here.
+    STATIC_DIR: ClassVar[Path] = UI_ROOT / "static"
     # Each health check gives up after this long; all checks run at once.
     CHECK_TIMEOUT_SECONDS: ClassVar[float] = 2.0
     # The app grid checks every stack again this often while the page is open.
     REFRESH_SECONDS: ClassVar[int] = 15
+    # Hashed bundles never change under the same name.
+    IMMUTABLE_CACHE_CONTROL: ClassVar[str] = "private, max-age=31536000, immutable"
+    CONTENT_SECURITY_POLICY: ClassVar[str] = (
+        "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+        "object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    )
 
     allowed_emails: frozenset[str]
     sso: SSOConfig
