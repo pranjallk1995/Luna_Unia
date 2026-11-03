@@ -37,7 +37,8 @@ class LunaSingleSignOn:
 
     def is_allowed(self, user: dict[str, Any] | None) -> bool:
         email = str((user or {}).get("email", "")).strip().casefold()
-        return bool(email and email in self.allowed_emails and (user or {}).get("email_verified") is True)
+        listed = "*" in self.allowed_emails or email in self.allowed_emails
+        return bool(email and listed and (user or {}).get("email_verified") is True)
 
     async def lookup(self, token: str) -> dict[str, Any] | None:
         """Ask Sentia who the session belongs to; None when it is unknown or expired."""
