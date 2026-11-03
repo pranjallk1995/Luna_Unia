@@ -19,7 +19,7 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
-from config import SSOConfig, UIConfig
+from config import LunaApp, SSOConfig, UIConfig
 from services.detection import AppState, AppStatus, ServiceDetector
 from sso import LunaSingleSignOn
 
@@ -95,9 +95,17 @@ class UIGateway:
             return "Not running"
         return f"{', '.join(status.down)} not responding"
 
+    def visible_apps(self, user: dict[str, Any] | None) -> tuple[LunaApp, ...]:
+        """What this person can use: not hidden apps, and only the owner sees Sentia's services."""
+        hidden = set(self.sso.hidden_apps(user))
+        if (user or {}).get("user_id") != "owner":
+            hidden.add("sentia")
+        return tuple(app for app in self.config.apps if app.key not in hidden)
+
     async def statuses(self, request: Request) -> Response:
         """Ask every stack now, so each answer is as fresh as the page's refresh."""
-        statuses = await anyio.to_thread.run_sync(self.detector.detect, self.config.apps)
+        apps = self.visible_apps(await self.person(request))
+        statuses = await anyio.to_thread.run_sync(self.detector.detect, apps)
         return JSONResponse(
             {
                 "apps": [
