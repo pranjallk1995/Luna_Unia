@@ -35,6 +35,11 @@ class LunaSingleSignOn:
 
     # Identity
 
+    @staticmethod
+    def hidden_apps(user: dict[str, Any] | None) -> list[str]:
+        """The apps the owner has hidden from this person."""
+        return list((user or {}).get("hidden_apps", []))
+
     def is_allowed(self, user: dict[str, Any] | None) -> bool:
         email = str((user or {}).get("email", "")).strip().casefold()
         listed = "*" in self.allowed_emails or email in self.allowed_emails

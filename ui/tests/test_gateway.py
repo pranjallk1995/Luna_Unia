@@ -1,3 +1,4 @@
+import types
 import unittest
 
 import httpx
@@ -5,9 +6,10 @@ from starlette.testclient import TestClient
 
 from config import LUNA_APPS, SSOConfig, UIConfig
 from gateway import UIGateway
+from sso import LunaSingleSignOn
 from services.detection import AppState, AppStatus
 
-OWNER = {"email": "owner@example.com", "email_verified": True}
+OWNER = {"user_id": "owner", "email": "owner@example.com", "email_verified": True}
 STRANGER = {"email": "other@example.com", "email_verified": True}
 
 
@@ -63,6 +65,22 @@ class GatewayTestCase(unittest.TestCase):
     def test_health_and_security_headers(self):
         headers = self.client.get("/health").headers
         self.assertIn("frame-ancestors 'none'", headers["Content-Security-Policy"])
+
+
+class VisibleAppTests(unittest.TestCase):
+    def visible(self, user):
+        gateway = UIGateway.__new__(UIGateway)
+        gateway.config, gateway.sso = types.SimpleNamespace(apps=LUNA_APPS), LunaSingleSignOn
+        return {app.key for app in gateway.visible_apps(user)}
+
+    def test_others_see_only_what_they_can_use(self):
+        seen = self.visible({"user_id": "ab12", "hidden_apps": ["lumia"]})
+        self.assertNotIn("lumia", seen)
+        self.assertNotIn("sentia", seen)
+        self.assertIn("visia", seen)
+
+    def test_the_owner_sees_everything(self):
+        self.assertEqual(self.visible({"user_id": "owner", "hidden_apps": []}), {app.key for app in LUNA_APPS})
 
 
 if __name__ == "__main__":
