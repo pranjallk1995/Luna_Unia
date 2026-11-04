@@ -6,6 +6,12 @@
 ![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
 ![Status: early](https://img.shields.io/badge/Status-early-D29922)
 
+<p align="center">
+  <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
+</p>
+
+<p align="center"><em>From Google sign-in to the Luna Unia home, then into the apps. Select it for the sharper video.</em></p>
+
 ## One home for every Luna app
 
 Luna Unia is the front door to the Luna apps. It checks which Luna stacks are running
