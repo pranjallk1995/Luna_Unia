@@ -19,6 +19,10 @@ from the apps except whether they answer.
   <img src="docs/showcase.png" alt="Luna Unia showing all seven Luna stacks running, each card linking to its app">
 </p>
 
+## Who sees what
+
+Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, or to a comma-separated list. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
+
 ## Architecture
 
 ### Luna ecosystem
@@ -70,7 +74,7 @@ every app, and Unia last.
 Create a private `.env` from `.env.example`:
 
 ```dotenv
-LUNAUNIA_ALLOWED_EMAILS=you@example.com
+LUNAUNIA_ALLOWED_EMAILS=*
 LUNAUNIA_URL_TEMPLATE=https://{app}.example.com
 LUNA_SSO_URL=https://auth.example.com
 LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
