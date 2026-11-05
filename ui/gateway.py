@@ -95,6 +95,19 @@ class UIGateway:
             return "Not running"
         return f"{', '.join(status.down)} not responding"
 
+    @staticmethod
+    def address(url: str) -> str:
+        parsed = urlparse(url)
+        return parsed.netloc + parsed.path
+
+    @classmethod
+    def also_link(cls, status: AppStatus) -> dict[str, str] | None:
+        """The card's second link, while the service behind it answers."""
+        if status.app.also is None or status.app.also[0] in status.down:
+            return None
+        name, url = status.app.also
+        return {"name": name, "url": url, "host": cls.address(url)}
+
     def visible_apps(self, user: dict[str, Any] | None) -> tuple[LunaApp, ...]:
         """What this person can use: not hidden apps, and only the owner sees Sentia's services."""
         hidden = set(self.sso.hidden_apps(user))
@@ -114,10 +127,11 @@ class UIGateway:
                         "name": status.app.name,
                         "description": status.app.description,
                         "url": status.app.url,
-                        "host": urlparse(status.app.url).netloc,
+                        "host": self.address(status.app.url),
                         "state": status.state.value,
                         "status": self.status_label(status),
                         "can_open": status.can_open,
+                        "also": self.also_link(status),
                     }
                     for status in statuses
                 ]

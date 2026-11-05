@@ -506,6 +506,47 @@ a.lu-card:focus-visible {
   box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
 }
 
+.lu-card-pair {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.lu-card-pair .lu-card {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-bottom: 3rem;
+}
+
+.lu-also {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 0.85rem;
+  left: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--lv-muted);
+  font-size: var(--luna-text-small);
+  text-decoration: none;
+}
+
+.lu-also span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lu-also svg {
+  flex: none;
+}
+
+.lu-also:hover,
+.lu-also:focus-visible {
+  color: var(--lv-text);
+}
+
 .lu-offline {
   opacity: 0.55;
   box-shadow: none;

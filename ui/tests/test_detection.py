@@ -38,20 +38,34 @@ class DetectionTests(unittest.TestCase):
         failing = ServiceDetector(timeout=1, transport=httpx.MockTransport(lambda request: httpx.Response(503)))
         self.assertTrue(all(status.state is AppState.OFFLINE for status in failing.detect(LUNA_APPS)))
 
-    def test_sentia_opens_adminer_and_reports_its_services(self):
+    def test_sentia_reports_its_services(self):
         status = detector({"luna-sentia-adminer", "luna-sentia-auth"}).detect(LUNA_APPS)[-1]
         self.assertEqual(status.app.key, "sentia")
         self.assertIs(status.state, AppState.DEGRADED)
         self.assertEqual(status.down, ("Models",))
 
+    def test_sentia_opens_while_sign_on_answers_even_without_adminer(self):
+        status = detector({"luna-sentia-auth"}).detect(LUNA_APPS)[-1]
+        self.assertTrue(status.can_open)
+        self.assertIn("Adminer", status.down)
+        self.assertFalse(detector({"luna-sentia-adminer"}).detect(LUNA_APPS)[-1].can_open)
+
 
 class AppUrlTests(unittest.TestCase):
+    def test_sentia_opens_user_settings_with_adminer_beside_them(self):
+        with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
+            sentia = UIConfig.from_env().apps[-1]
+        self.assertEqual(sentia.url, "https://auth.example.com/admin")
+        self.assertEqual(sentia.also, ("Adminer", "http://localhost:19080"))
+        with patch.dict(os.environ, {**BASE_ENV, "LUNASENTIA_URL": "https://db.example.com/"}, clear=True):
+            self.assertEqual(UIConfig.from_env().apps[-1].also, ("Adminer", "https://db.example.com"))
+
     def test_urls_default_to_localhost_ports_and_can_be_overridden(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVIBIA_URL": "https://vibia.example.com/"}, clear=True):
             urls = {app.key: app.url for app in UIConfig.from_env().apps}
         self.assertEqual(urls["visia"], "http://localhost:18501")
         self.assertEqual(urls["vibia"], "https://vibia.example.com")
-        self.assertEqual(urls["sentia"], "http://localhost:19080")
+        self.assertEqual(urls["sentia"], "https://auth.example.com/admin")
 
     def test_template_names_every_app_but_sentia(self):
         env = {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com", "LUNALEXIA_URL": "https://docs.example.com"}
@@ -59,7 +73,7 @@ class AppUrlTests(unittest.TestCase):
             urls = {app.key: app.url for app in UIConfig.from_env().apps}
         self.assertEqual(urls["vita"], "https://vita.example.com")
         self.assertEqual(urls["lexia"], "https://docs.example.com")
-        self.assertEqual(urls["sentia"], "http://localhost:19080")
+        self.assertEqual(urls["sentia"], "https://auth.example.com/admin")
 
     def test_invalid_url_is_rejected(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVITA_URL": "vita.example.com"}, clear=True):

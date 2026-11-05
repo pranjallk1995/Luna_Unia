@@ -1,7 +1,7 @@
 """Validated settings for the UI gateway and the browser app it serves."""
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import ClassVar
 from urllib.parse import urlparse
@@ -43,6 +43,8 @@ class LunaApp:
     checks: tuple[tuple[str, str], ...]
     # The address browsers open when neither LUNA<KEY>_URL nor LUNAUNIA_URL_TEMPLATE sets one.
     url: str
+    # A second link on the card, as (the name of its check, its address).
+    also: tuple[str, str] | None = None
 
     @property
     def icon_path(self) -> Path:
@@ -74,10 +76,10 @@ LUNA_APPS: tuple[LunaApp, ...] = (
     LunaApp(
         key="sentia",
         name="Luna Sentia",
-        description="Shared PostgreSQL, Ollama models, and single sign-on for every app. Opens Adminer to browse the databases.",
+        description="Shared PostgreSQL, Ollama models, and single sign-on for every app. Opens user settings, and Adminer browses the databases.",
         checks=(
-            ("Adminer", "http://luna-sentia-adminer:8080/"),
             ("Sign-on", "http://luna-sentia-auth:8000/health"),
+            ("Adminer", "http://luna-sentia-adminer:8080/"),
             ("Models", "http://luna-sentia-ollama:11434/api/version"),
         ),
         url="http://localhost:19080",
@@ -109,7 +111,7 @@ class UIConfig:
 
     @staticmethod
     def app_url(app: LunaApp) -> str:
-        """The address browsers open for ``app``.
+        """The address browsers open for ``app``; for Sentia, its Adminer.
 
         LUNA<KEY>_URL wins; otherwise LUNAUNIA_URL_TEMPLATE with ``{app}`` replaced by the
         app's short name (for every app but Sentia, whose Adminer is only on localhost);
@@ -135,7 +137,12 @@ class UIConfig:
         )
         if not allowed_emails:
             raise RuntimeError("LUNAUNIA_ALLOWED_EMAILS must list at least one account.")
+        sso = SSOConfig.from_env()
         apps = tuple(
-            LunaApp(app.key, app.name, app.description, app.checks, cls.app_url(app)) for app in LUNA_APPS
+            # Sentia's card opens its user settings, which work anywhere; Adminer is only on localhost.
+            replace(app, url=f"{sso.public_url}/admin", also=("Adminer", cls.app_url(app)))
+            if app.key == "sentia"
+            else replace(app, url=cls.app_url(app))
+            for app in LUNA_APPS
         )
-        return cls(allowed_emails=allowed_emails, sso=SSOConfig.from_env(), apps=apps)
+        return cls(allowed_emails=allowed_emails, sso=sso, apps=apps)

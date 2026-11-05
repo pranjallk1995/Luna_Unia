@@ -16,6 +16,7 @@ type Stack = {
   state: "running" | "degraded" | "offline";
   status: string;
   can_open: boolean;
+  also: { name: string; url: string; host: string } | null;
 };
 
 function Card({ stack }: { stack: Stack }) {
@@ -43,10 +44,23 @@ function Card({ stack }: { stack: Stack }) {
       </div>
     );
   }
-  return (
+  const card = (
     <a className={classes} href={stack.url} target="_blank" rel="noopener" aria-label={`Open ${stack.name}`}>
       {body}
     </a>
+  );
+  if (!stack.also) return card;
+  // A link inside a link is not valid, so the second one sits beside the card, over its foot.
+  return (
+    <div className="lu-card-pair">
+      {card}
+      <a className="lu-also" href={stack.also.url} target="_blank" rel="noopener" aria-label={`Open ${stack.also.name}`}>
+        <span>
+          {stack.also.name} · {stack.also.host}
+        </span>
+        <ArrowUpRight size={16} />
+      </a>
+    </div>
   );
 }
 

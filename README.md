@@ -59,7 +59,7 @@ they answer (2 seconds at most each):
 | Stack | Checks | Card opens |
 | --- | --- | --- |
 | Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
-| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), and models (`luna-sentia-ollama:11434/api/version`) | Adminer |
+| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), and models (`luna-sentia-ollama:11434/api/version`) | Its user settings, with a second link to Adminer |
 
 - **Running:** every check answers. The card opens the app.
 - **`MCP not responding`** (or another service): the UI answers but a service behind it
@@ -90,9 +90,10 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
   `vita`, `lumia`, `fiora`, `lexia`, or `vibia`. Leave it blank to open each app at its
   localhost port (18501 to 18506). `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
   app's address when it does not follow the pattern.
-- Luna Sentia's card opens Adminer at `LUNASENTIA_URL` (default
-  `http://localhost:19080`). Adminer listens only on localhost, so the link works only
-  on the machine running Luna.
+- Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
+  owner sees it. Its second link opens Adminer at `LUNASENTIA_URL` (default
+  `http://localhost:19080`). Adminer listens only on localhost, so that link works only
+  on the machine running Luna, and it goes while Adminer is down.
 - Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see
   [Single sign-on](https://github.com/pranjallk1995/Luna_Sentia#single-sign-on). With
   `SENTIA_AUTH_COOKIE_DOMAIN` set, Unia must be reached under that domain, like every
