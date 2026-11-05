@@ -114,8 +114,8 @@ class UIConfig:
         """The address browsers open for ``app``; for Sentia, its Adminer.
 
         LUNA<KEY>_URL wins; otherwise LUNAUNIA_URL_TEMPLATE with ``{app}`` replaced by the
-        app's short name (for every app but Sentia, whose Adminer is only on localhost);
-        otherwise the app's localhost port.
+        app's short name (for every app but Sentia, whose Adminer has no name in the
+        pattern); otherwise the app's localhost port.
         """
         url = os.getenv(f"LUNA{app.key.upper()}_URL", "").strip()
         template = os.getenv("LUNAUNIA_URL_TEMPLATE", "").strip()
@@ -139,7 +139,7 @@ class UIConfig:
             raise RuntimeError("LUNAUNIA_ALLOWED_EMAILS must list at least one account.")
         sso = SSOConfig.from_env()
         apps = tuple(
-            # Sentia's card opens its user settings, which work anywhere; Adminer is only on localhost.
+            # Sentia's card opens its user settings; Adminer is the second link, at LUNASENTIA_URL.
             replace(app, url=f"{sso.public_url}/admin", also=("Adminer", cls.app_url(app)))
             if app.key == "sentia"
             else replace(app, url=cls.app_url(app))

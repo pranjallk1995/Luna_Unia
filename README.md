@@ -4,7 +4,7 @@
 ![Docker Compose v2](https://img.shields.io/badge/Docker_Compose-v2-2496ED?logo=docker&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
-![Status: v1.1](https://img.shields.io/badge/Status-v1.1-2EA043)
+![Status: v1.1.1](https://img.shields.io/badge/Status-v1.1.1-2EA043)
 
 <p align="center">
   <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
@@ -92,8 +92,9 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
   app's address when it does not follow the pattern.
 - Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
   owner sees it. Its second link opens Adminer at `LUNASENTIA_URL` (default
-  `http://localhost:19080`). Adminer listens only on localhost, so that link works only
-  on the machine running Luna, and it goes while Adminer is down.
+  `http://localhost:19080`, which works only on the machine running Luna). To open it
+  from other devices, route a public hostname to `127.0.0.1:19080` in your tunnel and
+  set `LUNASENTIA_URL` to it. The link goes while Adminer is down.
 - Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see
   [Single sign-on](https://github.com/pranjallk1995/Luna_Sentia#single-sign-on). With
   `SENTIA_AUTH_COOKIE_DOMAIN` set, Unia must be reached under that domain, like every
