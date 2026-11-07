@@ -43,8 +43,8 @@ class LunaApp:
     checks: tuple[tuple[str, str], ...]
     # The address browsers open when neither LUNA<KEY>_URL nor LUNAUNIA_URL_TEMPLATE sets one.
     url: str
-    # A second link on the card, as (the name of its check, its address).
-    also: tuple[str, str] | None = None
+    # More links on the card, each as (the name of its check, its address).
+    also: tuple[tuple[str, str], ...] = ()
 
     @property
     def icon_path(self) -> Path:
@@ -76,11 +76,12 @@ LUNA_APPS: tuple[LunaApp, ...] = (
     LunaApp(
         key="sentia",
         name="Luna Sentia",
-        description="Shared PostgreSQL, Ollama models, and single sign-on for every app. Opens user settings, and Adminer browses the databases.",
+        description="Shared PostgreSQL, Ollama models, and single sign-on for every app. Opens user settings; Adminer browses the databases and the monitor shows model calls and the GPU.",
         checks=(
             ("Sign-on", "http://luna-sentia-auth:8000/health"),
             ("Adminer", "http://luna-sentia-adminer:8080/"),
             ("Models", "http://luna-sentia-ollama:11434/api/version"),
+            ("Monitor", "http://luna-sentia-monitor:8000/health"),
         ),
         url="http://localhost:19080",
     ),
@@ -127,6 +128,15 @@ class UIConfig:
             raise RuntimeError(f"LUNA{app.key.upper()}_URL must be a valid HTTP(S) URL.")
         return url
 
+    @staticmethod
+    def monitor_url() -> str:
+        """Luna Sentia's model monitor: LUNASENTIA_MONITOR_URL, or its localhost port."""
+        url = (os.getenv("LUNASENTIA_MONITOR_URL", "").strip() or "http://localhost:19081").rstrip("/")
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise RuntimeError("LUNASENTIA_MONITOR_URL must be a valid HTTP(S) URL.")
+        return url
+
     @classmethod
     def from_env(cls) -> "UIConfig":
         """Build and validate UI configuration from environment variables."""
@@ -139,8 +149,10 @@ class UIConfig:
             raise RuntimeError("LUNAUNIA_ALLOWED_EMAILS must list at least one account.")
         sso = SSOConfig.from_env()
         apps = tuple(
-            # Sentia's card opens its user settings; Adminer is the second link, at LUNASENTIA_URL.
-            replace(app, url=f"{sso.public_url}/admin", also=("Adminer", cls.app_url(app)))
+            # Sentia's card opens its user settings, with links to Adminer (LUNASENTIA_URL)
+            # and the model monitor (LUNASENTIA_MONITOR_URL) beside them.
+            replace(app, url=f"{sso.public_url}/admin",
+                    also=(("Adminer", cls.app_url(app)), ("Monitor", cls.monitor_url())))
             if app.key == "sentia"
             else replace(app, url=cls.app_url(app))
             for app in LUNA_APPS

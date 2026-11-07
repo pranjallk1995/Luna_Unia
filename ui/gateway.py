@@ -101,12 +101,9 @@ class UIGateway:
         return parsed.netloc + parsed.path
 
     @classmethod
-    def also_link(cls, status: AppStatus) -> dict[str, str] | None:
-        """The card's second link, while the service behind it answers."""
-        if status.app.also is None or status.app.also[0] in status.down:
-            return None
-        name, url = status.app.also
-        return {"name": name, "url": url, "host": cls.address(url)}
+    def also_links(cls, status: AppStatus) -> list[dict[str, str]]:
+        """The card's other links, each while the service behind it answers."""
+        return [{"name": name, "url": url, "host": cls.address(url)} for name, url in status.app.also if name not in status.down]
 
     def visible_apps(self, user: dict[str, Any] | None) -> tuple[LunaApp, ...]:
         """What this person can use: not hidden apps, and only the owner sees Sentia's services."""
@@ -131,7 +128,7 @@ class UIGateway:
                         "state": status.state.value,
                         "status": self.status_label(status),
                         "can_open": status.can_open,
-                        "also": self.also_link(status),
+                        "also": self.also_links(status),
                     }
                     for status in statuses
                 ]

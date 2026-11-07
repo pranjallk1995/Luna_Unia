@@ -482,6 +482,8 @@ a {
 .lu-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Every row as tall as the tallest card, so all the cards are one size. */
+  grid-auto-rows: 1fr;
   gap: 1rem;
 }
 
@@ -515,36 +517,109 @@ a.lu-card:focus-visible {
 .lu-card-pair .lu-card {
   flex: 1 1 auto;
   min-width: 0;
-  padding-bottom: 3rem;
+}
+
+/* Room on the foot for the button that opens the other pages. */
+.lu-card-pair .lu-link span {
+  padding-right: 6.5rem;
 }
 
 .lu-also {
   position: absolute;
-  right: 1.1rem;
+  right: calc(1.1rem + 16px + 0.5rem);
   bottom: 0.85rem;
-  left: 1.1rem;
-  display: flex;
+}
+
+.lu-also-toggle {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.3rem;
+  height: 1.6rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--lv-border);
+  border-radius: 999px;
+  background: transparent;
   color: var(--lv-muted);
+  font: inherit;
   font-size: var(--luna-text-small);
+  cursor: pointer;
+}
+
+.lu-also-toggle svg {
+  transition: transform 140ms ease;
+}
+
+.lu-also-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.lu-also-toggle:hover,
+.lu-also-toggle:focus-visible,
+.lu-also-toggle[aria-expanded="true"] {
+  border-color: var(--lv-strong);
+  color: var(--lv-text);
+}
+
+/* Opens upward over the card itself, so nothing on the page moves and the menu
+   stays in view even on the last card. */
+.lu-also-menu {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  right: calc(-16px - 0.5rem);
+  z-index: 10;
+  display: grid;
+  width: min(19rem, calc(100vw - 2rem));
+  padding: 0.35rem;
+  border: 1px solid var(--lv-strong);
+  border-radius: 12px;
+  /* The surfaces are see-through, so the menu lays one over the page's solid colour. */
+  background: linear-gradient(var(--lv-control), var(--lv-control)), var(--lv-bg);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+.lu-also-menu a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: var(--lv-muted);
   text-decoration: none;
 }
 
-.lu-also span {
+.lu-also-menu svg {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.lu-also-name,
+.lu-also-host {
+  grid-column: 1;
+}
+
+.lu-also-name {
+  color: var(--lv-text);
+  font-weight: 600;
+}
+
+.lu-also-host {
   overflow: hidden;
+  font-size: var(--luna-text-small);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.lu-also svg {
-  flex: none;
+.lu-also-menu a:hover,
+.lu-also-menu a:focus-visible {
+  background: var(--lv-control-hover);
+  color: var(--lv-text);
 }
 
-.lu-also:hover,
-.lu-also:focus-visible {
-  color: var(--lv-text);
+@media (prefers-reduced-motion: reduce) {
+  .lu-also-toggle svg {
+    transition: none;
+  }
 }
 
 .lu-offline {
@@ -675,6 +750,7 @@ a.lu-card:hover .lu-link svg {
 @media (max-width: 700px) {
   .lu-grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
     gap: 0.75rem;
   }
 

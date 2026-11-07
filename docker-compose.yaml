@@ -17,6 +17,7 @@ services:
       LUNALEXIA_URL: ${LUNALEXIA_URL:-}
       LUNAVIBIA_URL: ${LUNAVIBIA_URL:-}
       LUNASENTIA_URL: ${LUNASENTIA_URL:-}
+      LUNASENTIA_MONITOR_URL: ${LUNASENTIA_MONITOR_URL:-}
     ports:
       - "127.0.0.1:42069:8501"
     develop:

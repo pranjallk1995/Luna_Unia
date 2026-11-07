@@ -80,12 +80,13 @@ class VisibleAppTests(unittest.TestCase):
         self.assertNotIn("sentia", seen)
         self.assertIn("visia", seen)
 
-    def test_the_second_link_goes_while_its_service_is_down(self):
-        app = replace(LUNA_APPS[-1], also=("Adminer", "http://localhost:19080"))
-        link = UIGateway.also_link(AppStatus(app, AppState.RUNNING))
-        self.assertEqual(link, {"name": "Adminer", "url": "http://localhost:19080", "host": "localhost:19080"})
-        self.assertIsNone(UIGateway.also_link(AppStatus(app, AppState.DEGRADED, ("Adminer",))))
-        self.assertIsNone(UIGateway.also_link(AppStatus(LUNA_APPS[0], AppState.RUNNING)))
+    def test_each_other_link_goes_while_its_service_is_down(self):
+        app = replace(LUNA_APPS[-1], also=(("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081")))
+        links = UIGateway.also_links(AppStatus(app, AppState.RUNNING))
+        self.assertEqual(links, [{"name": "Adminer", "url": "http://localhost:19080", "host": "localhost:19080"},
+                                 {"name": "Monitor", "url": "http://localhost:19081", "host": "localhost:19081"}])
+        self.assertEqual([link["name"] for link in UIGateway.also_links(AppStatus(app, AppState.DEGRADED, ("Adminer",)))], ["Monitor"])
+        self.assertEqual(UIGateway.also_links(AppStatus(LUNA_APPS[0], AppState.RUNNING)), [])
 
     def test_the_owner_sees_everything(self):
         self.assertEqual(self.visible({"user_id": "owner", "hidden_apps": []}), {app.key for app in LUNA_APPS})

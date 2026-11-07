@@ -42,7 +42,7 @@ class DetectionTests(unittest.TestCase):
         status = detector({"luna-sentia-adminer", "luna-sentia-auth"}).detect(LUNA_APPS)[-1]
         self.assertEqual(status.app.key, "sentia")
         self.assertIs(status.state, AppState.DEGRADED)
-        self.assertEqual(status.down, ("Models",))
+        self.assertEqual(status.down, ("Models", "Monitor"))
 
     def test_sentia_opens_while_sign_on_answers_even_without_adminer(self):
         status = detector({"luna-sentia-auth"}).detect(LUNA_APPS)[-1]
@@ -52,13 +52,15 @@ class DetectionTests(unittest.TestCase):
 
 
 class AppUrlTests(unittest.TestCase):
-    def test_sentia_opens_user_settings_with_adminer_beside_them(self):
+    def test_sentia_opens_user_settings_with_adminer_and_the_monitor_beside_them(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
             sentia = UIConfig.from_env().apps[-1]
         self.assertEqual(sentia.url, "https://auth.example.com/admin")
-        self.assertEqual(sentia.also, ("Adminer", "http://localhost:19080"))
-        with patch.dict(os.environ, {**BASE_ENV, "LUNASENTIA_URL": "https://db.example.com/"}, clear=True):
-            self.assertEqual(UIConfig.from_env().apps[-1].also, ("Adminer", "https://db.example.com"))
+        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081")))
+        overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/"}
+        with patch.dict(os.environ, {**BASE_ENV, **overrides}, clear=True):
+            self.assertEqual(UIConfig.from_env().apps[-1].also,
+                             (("Adminer", "https://db.example.com"), ("Monitor", "https://monitor.example.com")))
 
     def test_urls_default_to_localhost_ports_and_can_be_overridden(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVIBIA_URL": "https://vibia.example.com/"}, clear=True):
