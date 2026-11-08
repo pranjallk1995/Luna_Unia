@@ -21,7 +21,20 @@ def detector(up: set[str]) -> ServiceDetector:
     return ServiceDetector(timeout=1, transport=httpx.MockTransport(handler))
 
 
+def detector_answering(body: dict) -> ServiceDetector:
+    """A detector whose every service answers with ``body``."""
+    return ServiceDetector(timeout=1, transport=httpx.MockTransport(lambda request: httpx.Response(200, json=body)))
+
+
 class DetectionTests(unittest.TestCase):
+    def test_a_running_stack_reports_the_release_its_first_service_names(self):
+        status = detector_answering({"status": "ok", "version": "1.4.0"}).detect(LUNA_APPS)[0]
+        self.assertEqual(status.version, "1.4.0")
+
+    def test_a_health_answer_without_a_release_leaves_it_blank(self):
+        statuses = detector({"luna-visia-ui", "luna-visia-mcp"}).detect(LUNA_APPS)
+        self.assertEqual((statuses[0].state, statuses[0].version), (AppState.RUNNING, ""))
+
     def test_app_is_running_degraded_or_offline_by_its_ui_and_services(self):
         statuses = {
             status.app.key: status

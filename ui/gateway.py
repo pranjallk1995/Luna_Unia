@@ -83,7 +83,7 @@ class UIGateway:
         logout_url = self.sso.logout_url(here)
         if not self.sso.is_allowed(user):
             return JSONResponse({"status": "forbidden", "email": user.get("email"), "logout_url": logout_url})
-        return JSONResponse({"status": "signed_in", "email": user.get("email"), "logout_url": logout_url, "settings": {"refresh_seconds": UIConfig.REFRESH_SECONDS}})
+        return JSONResponse({"status": "signed_in", "email": user.get("email"), "logout_url": logout_url, "settings": {"version": UIConfig.VERSION, "refresh_seconds": UIConfig.REFRESH_SECONDS}})
 
     # Stacks
 
@@ -123,6 +123,7 @@ class UIGateway:
                         "key": status.app.key,
                         "name": status.app.name,
                         "description": status.app.description,
+                        "version": status.version,
                         "url": status.app.url,
                         "host": self.address(status.app.url),
                         "state": status.state.value,
@@ -140,7 +141,7 @@ class UIGateway:
 
     @staticmethod
     async def health(request: Request) -> Response:
-        return JSONResponse({"status": "ok"})
+        return JSONResponse({"status": "ok", "version": UIConfig.VERSION})
 
     def application(self) -> Starlette:
         app = Starlette(

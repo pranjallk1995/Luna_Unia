@@ -6,12 +6,13 @@ import { Brand, ForbiddenPage, SignInPage, UnreachablePage } from "./components/
 import { request, useSession } from "./http";
 import { messageOf } from "./lib";
 
-type Settings = { refresh_seconds: number };
+type Settings = { version: string; refresh_seconds: number };
 
 type Stack = {
   key: string;
   name: string;
   description: string;
+  version: string;
   url: string;
   host: string;
   state: "running" | "degraded" | "offline";
@@ -26,7 +27,10 @@ function Card({ stack }: { stack: Stack }) {
       <div className="lu-top">
         <img className="lu-icon" src={`/apps/${stack.key}.png`} alt="" />
         <div className="lu-heading">
-          <span className="lu-name">{stack.name}</span>
+          <span className="lu-name">
+            {stack.name}
+            {stack.version && <span className="lu-version">v{stack.version}</span>}
+          </span>
           <span className="lu-status">{stack.status}</span>
         </div>
       </div>
@@ -161,6 +165,7 @@ function Workspace({ logoutUrl, settings }: { logoutUrl: string; settings: Setti
           </div>
         </>
       )}
+      <footer className="lv-footer">Luna Unia · v{settings.version}</footer>
     </main>
   );
 }
