@@ -165,7 +165,7 @@ function Workspace({ logoutUrl, settings }: { logoutUrl: string; settings: Setti
           </div>
         </>
       )}
-      <footer className="lv-footer">Luna Unia · v{settings.version}</footer>
+      <footer className="lv-footer">Luna Unia{settings.version && ` · v${settings.version}`}</footer>
     </main>
   );
 }
