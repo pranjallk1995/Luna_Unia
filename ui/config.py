@@ -74,6 +74,14 @@ LUNA_APPS: tuple[LunaApp, ...] = (
     _app("lexia", "Luna Lexia", "Vault for payslips, statements, and tax proofs, read and classified locally with their details extracted.", 18505),
     _app("vibia", "Luna Vibia", "Music library that listens to every track, captions and tags it, and builds playlists for a mood.", 18506),
     LunaApp(
+        key="socia",
+        name="Luna Socia",
+        description="A private chat with Luna by text, voice, and photos; she sends pictures of herself. For the owner only; an early prototype.",
+        # One service, the chat page and its API, with no MCP server.
+        checks=(("UI", "http://luna-socia-ui:8501/health"),),
+        url="http://localhost:18507",
+    ),
+    LunaApp(
         key="sentia",
         name="Luna Sentia",
         description="Shared PostgreSQL, Ollama models, and single sign-on for every app. Opens user settings; Adminer browses the databases and the monitor shows model calls and the GPU.",

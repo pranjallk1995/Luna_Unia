@@ -4,7 +4,7 @@
 ![Docker Compose v2](https://img.shields.io/badge/Docker_Compose-v2-2496ED?logo=docker&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
-![Status: v1.2.2](https://img.shields.io/badge/Status-v1.2.2-2EA043)
+![Status: v1.3.0](https://img.shields.io/badge/Status-v1.3.0-2EA043)
 
 <p align="center">
   <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
@@ -62,6 +62,7 @@ they answer (2 seconds at most each):
 | Stack | Checks | Card opens |
 | --- | --- | --- |
 | Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
+| Socia | `http://luna-socia-ui:8501/health`; it has no MCP server | The chat, for the owner only |
 | Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), and the model monitor (`luna-sentia-monitor:8000/health`) | Its user settings, with links to Adminer and the model monitor |
 
 - **Running:** every check answers. The card opens the app.
@@ -90,8 +91,8 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
 ```
 
 - `LUNAUNIA_URL_TEMPLATE` is where the cards send the browser: `{app}` becomes `visia`,
-  `vita`, `lumia`, `fiora`, `lexia`, or `vibia`. Leave it blank to open each app at its
-  localhost port (18501 to 18506). With a tunnel, set it, for example
+  `vita`, `lumia`, `fiora`, `lexia`, `vibia`, or `socia`. Leave it blank to open each app at its
+  localhost port (18501 to 18507). With a tunnel, set it, for example
   `https://{app}.example.com`, and `LUNA_SSO_URL` to Sentia's public sign-on address. `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
   app's address when it does not follow the pattern.
 - Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the

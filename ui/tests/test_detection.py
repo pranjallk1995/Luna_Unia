@@ -47,6 +47,13 @@ class DetectionTests(unittest.TestCase):
         self.assertIs(statuses["lumia"].state, AppState.OFFLINE)
         self.assertFalse(statuses["lumia"].can_open)
 
+    def test_socia_runs_on_its_one_service(self):
+        statuses = {status.app.key: status for status in detector({"luna-socia-ui"}).detect(LUNA_APPS)}
+        self.assertIs(statuses["socia"].state, AppState.RUNNING)
+        with patch.dict(os.environ, BASE_ENV, clear=True):
+            urls = {app.key: app.url for app in UIConfig.from_env().apps}
+        self.assertEqual(urls["socia"], "http://localhost:18507")
+
     def test_server_errors_count_as_down(self):
         failing = ServiceDetector(timeout=1, transport=httpx.MockTransport(lambda request: httpx.Response(503)))
         self.assertTrue(all(status.state is AppState.OFFLINE for status in failing.detect(LUNA_APPS)))
