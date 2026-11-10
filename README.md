@@ -4,7 +4,7 @@
 ![Docker Compose v2](https://img.shields.io/badge/Docker_Compose-v2-2496ED?logo=docker&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
-![Status: v1.3.0](https://img.shields.io/badge/Status-v1.3.0-2EA043)
+![Status: v1.3.1](https://img.shields.io/badge/Status-v1.3.1-2EA043)
 
 <p align="center">
   <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
@@ -27,7 +27,7 @@ from the apps except whether they answer.
 
 ## Who sees what
 
-Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, or to a comma-separated list. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
+Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services and Luna Socia. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, or to a comma-separated list. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
 
 ## Architecture
 
@@ -63,7 +63,7 @@ they answer (2 seconds at most each):
 | --- | --- | --- |
 | Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
 | Socia | `http://luna-socia-ui:8501/health`; it has no MCP server | The chat, for the owner only |
-| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), and the model monitor (`luna-sentia-monitor:8000/health`) | Its user settings, with links to Adminer and the model monitor |
+| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), the model monitor (`luna-sentia-monitor:8000/health`), and ComfyUI (`luna-sentia-comfyui:8188/system_stats`) | Its user settings, with links to Adminer, the model monitor, and ComfyUI |
 
 - **Running:** every check answers. The card opens the app.
 - **`MCP not responding`** (or another service): the UI answers but a service behind it
@@ -102,6 +102,10 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
   them from other devices, route public hostnames to those ports in your tunnel and set
   the two addresses to them; the monitor signs in through Sentia, so its address must be
   under `SENTIA_AUTH_COOKIE_DOMAIN`. Each link goes while its service is down.
+- Sentia's card also links to ComfyUI, which makes Luna Socia's pictures, at
+  `LUNASENTIA_COMFYUI_URL` (default `http://localhost:19082`). ComfyUI has no sign-in, so
+  keep it off the tunnel unless something else guards it.
+- Luna Socia's card, also for the owner only, opens the chat.
 - Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see
   [Single sign-on](https://github.com/pranjallk1995/Luna_Sentia#single-sign-on). With
   `SENTIA_AUTH_COOKIE_DOMAIN` set, Unia must be reached under that domain, like every

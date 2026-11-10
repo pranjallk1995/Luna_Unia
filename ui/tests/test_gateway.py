@@ -78,6 +78,7 @@ class VisibleAppTests(unittest.TestCase):
         seen = self.visible({"user_id": "ab12", "hidden_apps": ["lumia"]})
         self.assertNotIn("lumia", seen)
         self.assertNotIn("sentia", seen)
+        self.assertNotIn("socia", seen)
         self.assertIn("visia", seen)
 
     def test_each_other_link_goes_while_its_service_is_down(self):

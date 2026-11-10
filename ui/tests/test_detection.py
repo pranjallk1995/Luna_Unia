@@ -51,8 +51,7 @@ class DetectionTests(unittest.TestCase):
         statuses = {status.app.key: status for status in detector({"luna-socia-ui"}).detect(LUNA_APPS)}
         self.assertIs(statuses["socia"].state, AppState.RUNNING)
         with patch.dict(os.environ, BASE_ENV, clear=True):
-            urls = {app.key: app.url for app in UIConfig.from_env().apps}
-        self.assertEqual(urls["socia"], "http://localhost:18507")
+            self.assertEqual({app.key: app.url for app in UIConfig.from_env().apps}["socia"], "http://localhost:18507")
 
     def test_server_errors_count_as_down(self):
         failing = ServiceDetector(timeout=1, transport=httpx.MockTransport(lambda request: httpx.Response(503)))
@@ -62,7 +61,7 @@ class DetectionTests(unittest.TestCase):
         status = detector({"luna-sentia-adminer", "luna-sentia-auth"}).detect(LUNA_APPS)[-1]
         self.assertEqual(status.app.key, "sentia")
         self.assertIs(status.state, AppState.DEGRADED)
-        self.assertEqual(status.down, ("Models", "Monitor"))
+        self.assertEqual(status.down, ("Models", "Monitor", "ComfyUI"))
 
     def test_sentia_opens_while_sign_on_answers_even_without_adminer(self):
         status = detector({"luna-sentia-auth"}).detect(LUNA_APPS)[-1]
@@ -76,11 +75,14 @@ class AppUrlTests(unittest.TestCase):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
             sentia = UIConfig.from_env().apps[-1]
         self.assertEqual(sentia.url, "https://auth.example.com/admin")
-        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081")))
-        overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/"}
+        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081"),
+                                       ("ComfyUI", "http://localhost:19082")))
+        overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/",
+                     "LUNASENTIA_COMFYUI_URL": "https://comfy.example.com/"}
         with patch.dict(os.environ, {**BASE_ENV, **overrides}, clear=True):
             self.assertEqual(UIConfig.from_env().apps[-1].also,
-                             (("Adminer", "https://db.example.com"), ("Monitor", "https://monitor.example.com")))
+                             (("Adminer", "https://db.example.com"), ("Monitor", "https://monitor.example.com"),
+                              ("ComfyUI", "https://comfy.example.com")))
 
     def test_urls_default_to_localhost_ports_and_can_be_overridden(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVIBIA_URL": "https://vibia.example.com/"}, clear=True):

@@ -106,10 +106,11 @@ class UIGateway:
         return [{"name": name, "url": url, "host": cls.address(url)} for name, url in status.app.also if name not in status.down]
 
     def visible_apps(self, user: dict[str, Any] | None) -> tuple[LunaApp, ...]:
-        """What this person can use: not hidden apps, and only the owner sees Sentia's services."""
+        """What this person can use: not hidden apps, and only the owner sees Sentia's services
+        (ComfyUI among them, which has no sign-in) and Socia, the owner's chat."""
         hidden = set(self.sso.hidden_apps(user))
         if (user or {}).get("user_id") != "owner":
-            hidden.add("sentia")
+            hidden.update({"sentia", "socia"})
         return tuple(app for app in self.config.apps if app.key not in hidden)
 
     async def statuses(self, request: Request) -> Response:
