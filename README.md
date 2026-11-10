@@ -84,14 +84,15 @@ Create a private `.env` from `.env.example`:
 
 ```dotenv
 LUNAUNIA_ALLOWED_EMAILS=*
-LUNAUNIA_URL_TEMPLATE=https://{app}.example.com
-LUNA_SSO_URL=https://auth.example.com
+LUNAUNIA_URL_TEMPLATE=
+LUNA_SSO_URL=http://localhost:19090
 LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
 ```
 
 - `LUNAUNIA_URL_TEMPLATE` is where the cards send the browser: `{app}` becomes `visia`,
   `vita`, `lumia`, `fiora`, `lexia`, or `vibia`. Leave it blank to open each app at its
-  localhost port (18501 to 18506). `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
+  localhost port (18501 to 18506). With a tunnel, set it, for example
+  `https://{app}.example.com`, and `LUNA_SSO_URL` to Sentia's public sign-on address. `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
   app's address when it does not follow the pattern.
 - Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
   owner sees it. Beside them are links to Adminer at `LUNASENTIA_URL` (default
