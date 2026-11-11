@@ -142,7 +142,7 @@ class UIConfig:
     @staticmethod
     def monitor_url() -> str:
         """Luna Sentia's model monitor: LUNASENTIA_MONITOR_URL, or its localhost port."""
-        url = (os.getenv("LUNASENTIA_MONITOR_URL", "").strip() or "http://localhost:19004").rstrip("/")
+        url = (os.getenv("LUNASENTIA_MONITOR_URL", "").strip() or "http://localhost:19003").rstrip("/")
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise RuntimeError("LUNASENTIA_MONITOR_URL must be a valid HTTP(S) URL.")

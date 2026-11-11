@@ -4,7 +4,7 @@
 ![Docker Compose v2](https://img.shields.io/badge/Docker_Compose-v2-2496ED?logo=docker&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
-![Status: v1.4.0](https://img.shields.io/badge/Status-v1.4.0-2EA043)
+![Status: v1.4.1](https://img.shields.io/badge/Status-v1.4.1-2EA043)
 
 <p align="center">
   <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
@@ -113,7 +113,7 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
 - Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
   owner sees it. Beside them are links to Adminer at `LUNASENTIA_URL` (default
   `http://localhost:19000`, which works only on the machine running Luna) and to the
-  model monitor at `LUNASENTIA_MONITOR_URL` (default `http://localhost:19004`). To open
+  model monitor at `LUNASENTIA_MONITOR_URL` (default `http://localhost:19003`). To open
   them from other devices, route public hostnames to those ports in your tunnel and set
   the two addresses to them; the monitor signs in through Sentia, so its address must be
   under `SENTIA_AUTH_COOKIE_DOMAIN`. Each link goes while its service is down.

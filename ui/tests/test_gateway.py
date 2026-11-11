@@ -82,10 +82,10 @@ class VisibleAppTests(unittest.TestCase):
         self.assertIn("visia", seen)
 
     def test_each_other_link_goes_while_its_service_is_down(self):
-        app = replace(LUNA_APPS[-1], also=(("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19004")))
+        app = replace(LUNA_APPS[-1], also=(("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19003")))
         links = UIGateway.also_links(AppStatus(app, AppState.RUNNING))
         self.assertEqual(links, [{"name": "Adminer", "url": "http://localhost:19000", "host": "localhost:19000"},
-                                 {"name": "Monitor", "url": "http://localhost:19004", "host": "localhost:19004"}])
+                                 {"name": "Monitor", "url": "http://localhost:19003", "host": "localhost:19003"}])
         self.assertEqual([link["name"] for link in UIGateway.also_links(AppStatus(app, AppState.DEGRADED, ("Adminer",)))], ["Monitor"])
         self.assertEqual(UIGateway.also_links(AppStatus(LUNA_APPS[0], AppState.RUNNING)), [])
 

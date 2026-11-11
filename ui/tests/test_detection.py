@@ -75,7 +75,7 @@ class AppUrlTests(unittest.TestCase):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
             sentia = UIConfig.from_env().apps[-1]
         self.assertEqual(sentia.url, "https://auth.example.com/admin")
-        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19004"),
+        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19003"),
                                        ("ComfyUI", "http://localhost:19002")))
         overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/",
                      "LUNASENTIA_COMFYUI_URL": "https://comfy.example.com/"}
