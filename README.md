@@ -27,7 +27,7 @@ from the apps except whether they answer.
 
 ## Who sees what
 
-Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services and Luna Socia. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, or to a comma-separated list. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
+Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services and Luna Socia. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, to a comma-separated list, or leave it blank (the default) for Sentia's owner only. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
 
 ## Architecture
 
@@ -96,7 +96,7 @@ Start [Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia) first and wait
 its `auth` service is healthy; Unia needs no database. `../luna.sh start` starts Sentia,
 every app, and Unia last.
 
-Create a private `.env` from `.env.example`:
+A fresh clone needs no `.env`: `luna.sh start` runs Unia with localhost defaults, where only Luna Sentia's owner may use it. To change that, create a private `.env` from `.env.example`:
 
 ```dotenv
 LUNAUNIA_ALLOWED_EMAILS=*

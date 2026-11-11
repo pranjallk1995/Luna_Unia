@@ -165,8 +165,6 @@ class UIConfig:
             for email in os.getenv("LUNAUNIA_ALLOWED_EMAILS", "").split(",")
             if email.strip()
         )
-        if not allowed_emails:
-            raise RuntimeError("LUNAUNIA_ALLOWED_EMAILS must list at least one account.")
         sso = SSOConfig.from_env()
         apps = tuple(
             # Sentia's card opens its user settings, with links to Adminer (LUNASENTIA_URL),

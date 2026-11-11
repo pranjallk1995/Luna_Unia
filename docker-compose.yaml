@@ -7,7 +7,7 @@ services:
     environment:
       LUNA_SSO_URL: ${LUNA_SSO_URL:-http://localhost:19090}
       LUNA_SSO_INTERNAL_URL: ${LUNA_SSO_INTERNAL_URL:-http://luna-sentia-auth:8000}
-      LUNAUNIA_ALLOWED_EMAILS: ${LUNAUNIA_ALLOWED_EMAILS:?Set LUNAUNIA_ALLOWED_EMAILS to the Google accounts allowed to access Unia}
+      LUNAUNIA_ALLOWED_EMAILS: ${LUNAUNIA_ALLOWED_EMAILS:-}
       # Where browsers open each app: LUNA<APP>_URL, else the template, else its localhost port.
       LUNAUNIA_URL_TEMPLATE: ${LUNAUNIA_URL_TEMPLATE:-}
       LUNAVISIA_URL: ${LUNAVISIA_URL:-}
