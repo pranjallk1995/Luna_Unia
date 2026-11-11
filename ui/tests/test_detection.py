@@ -51,7 +51,7 @@ class DetectionTests(unittest.TestCase):
         statuses = {status.app.key: status for status in detector({"luna-socia-ui"}).detect(LUNA_APPS)}
         self.assertIs(statuses["socia"].state, AppState.RUNNING)
         with patch.dict(os.environ, BASE_ENV, clear=True):
-            self.assertEqual({app.key: app.url for app in UIConfig.from_env().apps}["socia"], "http://localhost:18507")
+            self.assertEqual({app.key: app.url for app in UIConfig.from_env().apps}["socia"], "http://localhost:18503")
 
     def test_server_errors_count_as_down(self):
         failing = ServiceDetector(timeout=1, transport=httpx.MockTransport(lambda request: httpx.Response(503)))
@@ -75,8 +75,8 @@ class AppUrlTests(unittest.TestCase):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
             sentia = UIConfig.from_env().apps[-1]
         self.assertEqual(sentia.url, "https://auth.example.com/admin")
-        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081"),
-                                       ("ComfyUI", "http://localhost:19082")))
+        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19004"),
+                                       ("ComfyUI", "http://localhost:19002")))
         overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/",
                      "LUNASENTIA_COMFYUI_URL": "https://comfy.example.com/"}
         with patch.dict(os.environ, {**BASE_ENV, **overrides}, clear=True):
@@ -87,7 +87,7 @@ class AppUrlTests(unittest.TestCase):
     def test_urls_default_to_localhost_ports_and_can_be_overridden(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVIBIA_URL": "https://vibia.example.com/"}, clear=True):
             urls = {app.key: app.url for app in UIConfig.from_env().apps}
-        self.assertEqual(urls["visia"], "http://localhost:18501")
+        self.assertEqual(urls["visia"], "http://localhost:18505")
         self.assertEqual(urls["vibia"], "https://vibia.example.com")
         self.assertEqual(urls["sentia"], "https://auth.example.com/admin")
 

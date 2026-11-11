@@ -101,24 +101,24 @@ A fresh clone needs no `.env`: `luna.sh start` runs Unia with localhost defaults
 ```dotenv
 LUNAUNIA_ALLOWED_EMAILS=*
 LUNAUNIA_URL_TEMPLATE=
-LUNA_SSO_URL=http://localhost:19090
+LUNA_SSO_URL=http://localhost:19001
 LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
 ```
 
 - `LUNAUNIA_URL_TEMPLATE` is where the cards send the browser: `{app}` becomes `visia`,
   `vita`, `lumia`, `fiora`, `lexia`, `vibia`, or `socia`. Leave it blank to open each app at its
-  localhost port (18501 to 18507). With a tunnel, set it, for example
+  localhost port (18500 to 18506). With a tunnel, set it, for example
   `https://{app}.example.com`, and `LUNA_SSO_URL` to Sentia's public sign-on address. `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
   app's address when it does not follow the pattern.
 - Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
   owner sees it. Beside them are links to Adminer at `LUNASENTIA_URL` (default
-  `http://localhost:19080`, which works only on the machine running Luna) and to the
-  model monitor at `LUNASENTIA_MONITOR_URL` (default `http://localhost:19081`). To open
+  `http://localhost:19000`, which works only on the machine running Luna) and to the
+  model monitor at `LUNASENTIA_MONITOR_URL` (default `http://localhost:19004`). To open
   them from other devices, route public hostnames to those ports in your tunnel and set
   the two addresses to them; the monitor signs in through Sentia, so its address must be
   under `SENTIA_AUTH_COOKIE_DOMAIN`. Each link goes while its service is down.
 - Sentia's card also links to ComfyUI, which makes Luna Socia's pictures, at
-  `LUNASENTIA_COMFYUI_URL` (default `http://localhost:19082`). ComfyUI has no sign-in, so
+  `LUNASENTIA_COMFYUI_URL` (default `http://localhost:19002`). ComfyUI has no sign-in, so
   keep it off the tunnel unless something else guards it.
 - Luna Socia's card, also for the owner only, opens the chat.
 - Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see

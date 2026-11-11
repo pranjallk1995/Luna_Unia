@@ -57,7 +57,7 @@ class GatewayTestCase(unittest.TestCase):
         self.assertTrue(apps["vita"]["can_open"])
         self.assertEqual((apps["lumia"]["state"], apps["lumia"]["status"]), ("offline", "Not running"))
         self.assertFalse(apps["lumia"]["can_open"])
-        self.assertEqual(apps["visia"]["host"], "localhost:18501")
+        self.assertEqual(apps["visia"]["host"], "localhost:18505")
 
     def test_offline_ui_with_a_live_service_names_the_ui(self):
         status = AppStatus(LUNA_APPS[0], AppState.OFFLINE, ("UI",))
@@ -82,10 +82,10 @@ class VisibleAppTests(unittest.TestCase):
         self.assertIn("visia", seen)
 
     def test_each_other_link_goes_while_its_service_is_down(self):
-        app = replace(LUNA_APPS[-1], also=(("Adminer", "http://localhost:19080"), ("Monitor", "http://localhost:19081")))
+        app = replace(LUNA_APPS[-1], also=(("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19004")))
         links = UIGateway.also_links(AppStatus(app, AppState.RUNNING))
-        self.assertEqual(links, [{"name": "Adminer", "url": "http://localhost:19080", "host": "localhost:19080"},
-                                 {"name": "Monitor", "url": "http://localhost:19081", "host": "localhost:19081"}])
+        self.assertEqual(links, [{"name": "Adminer", "url": "http://localhost:19000", "host": "localhost:19000"},
+                                 {"name": "Monitor", "url": "http://localhost:19004", "host": "localhost:19004"}])
         self.assertEqual([link["name"] for link in UIGateway.also_links(AppStatus(app, AppState.DEGRADED, ("Adminer",)))], ["Monitor"])
         self.assertEqual(UIGateway.also_links(AppStatus(LUNA_APPS[0], AppState.RUNNING)), [])
 

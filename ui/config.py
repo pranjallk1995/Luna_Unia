@@ -67,19 +67,19 @@ def _app(key: str, name: str, description: str, ui_port: int) -> LunaApp:
 
 # Every Luna stack, in the order luna.sh starts them, with Sentia last.
 LUNA_APPS: tuple[LunaApp, ...] = (
-    _app("visia", "Luna Visia", "Private image library. A local vision model captions and tags every upload, so assistants can search, edit, and share images.", 18501),
-    _app("vita", "Luna Vita", "Nutrition, body measurements, and workouts, with daily targets and food logged from a chat.", 18502),
-    _app("lumia", "Luna Lumia", "Smart-light control for WiZ bulbs: rooms, scenes, schedules, and lighting that follows the weather or the music.", 18503),
-    _app("fiora", "Luna Fiora", "Personal finance from bank messages: income, spending, savings, categories, and cash flow by month.", 18504),
-    _app("lexia", "Luna Lexia", "Vault for payslips, statements, and tax proofs, read and classified locally with their details extracted.", 18505),
-    _app("vibia", "Luna Vibia", "Music library that listens to every track, captions and tags it, and builds playlists for a mood.", 18506),
+    _app("visia", "Luna Visia", "Private image library. A local vision model captions and tags every upload, so assistants can search, edit, and share images.", 18505),
+    _app("vita", "Luna Vita", "Nutrition, body measurements, and workouts, with daily targets and food logged from a chat.", 18506),
+    _app("lumia", "Luna Lumia", "Smart-light control for WiZ bulbs: rooms, scenes, schedules, and lighting that follows the weather or the music.", 18502),
+    _app("fiora", "Luna Fiora", "Personal finance from bank messages: income, spending, savings, categories, and cash flow by month.", 18500),
+    _app("lexia", "Luna Lexia", "Vault for payslips, statements, and tax proofs, read and classified locally with their details extracted.", 18501),
+    _app("vibia", "Luna Vibia", "Music library that listens to every track, captions and tags it, and builds playlists for a mood.", 18504),
     LunaApp(
         key="socia",
         name="Luna Socia",
         description="A private chat with Luna by text, voice, and photos; she sends pictures of herself. For the owner only; an early prototype.",
         # One service, the chat page and its API, with no MCP server.
         checks=(("UI", "http://luna-socia-ui:8501/health"),),
-        url="http://localhost:18507",
+        url="http://localhost:18503",
     ),
     LunaApp(
         key="sentia",
@@ -92,7 +92,7 @@ LUNA_APPS: tuple[LunaApp, ...] = (
             ("Monitor", "http://luna-sentia-monitor:8000/health"),
             ("ComfyUI", "http://luna-sentia-comfyui:8188/system_stats"),
         ),
-        url="http://localhost:19080",
+        url="http://localhost:19000",
     ),
 )
 
@@ -142,7 +142,7 @@ class UIConfig:
     @staticmethod
     def monitor_url() -> str:
         """Luna Sentia's model monitor: LUNASENTIA_MONITOR_URL, or its localhost port."""
-        url = (os.getenv("LUNASENTIA_MONITOR_URL", "").strip() or "http://localhost:19081").rstrip("/")
+        url = (os.getenv("LUNASENTIA_MONITOR_URL", "").strip() or "http://localhost:19004").rstrip("/")
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise RuntimeError("LUNASENTIA_MONITOR_URL must be a valid HTTP(S) URL.")
@@ -151,7 +151,7 @@ class UIConfig:
     @staticmethod
     def comfyui_url() -> str:
         """Luna Sentia's ComfyUI page: LUNASENTIA_COMFYUI_URL, or its localhost port."""
-        url = (os.getenv("LUNASENTIA_COMFYUI_URL", "").strip() or "http://localhost:19082").rstrip("/")
+        url = (os.getenv("LUNASENTIA_COMFYUI_URL", "").strip() or "http://localhost:19002").rstrip("/")
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
             raise RuntimeError("LUNASENTIA_COMFYUI_URL must be a valid HTTP(S) URL.")
