@@ -110,6 +110,14 @@ appears for each app that is running. To run your local code instead, use
 values as described in [Start](#start). Every option of `luna.sh` is in
 [Start everything](https://github.com/pranjallk1995/Luna_Sentia#start-everything).
 
+## Releases
+
+Each release is on the [Releases page](https://github.com/pranjallk1995/Luna_Unia/releases), with what changed and how to
+upgrade. The `docker-compose.yaml` on `main` names the images of the latest release, so
+`git pull`, then `./Luna_Sentia/luna.sh start`, updates to it. When a release needs a newer
+Luna Sentia, its notes say so: upgrade Sentia first. The release of every Luna app is
+listed in [Luna Sentia's Releases](https://github.com/pranjallk1995/Luna_Sentia#releases).
+
 ## Start
 
 Start [Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia) first and wait until
