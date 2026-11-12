@@ -90,6 +90,26 @@ at once. Unia finds stacks by these network aliases, so it needs no Docker socke
 sees nothing else on the host. The list of stacks, their descriptions, and their
 localhost ports is `LUNA_APPS` in `ui/config.py`; add a new app there.
 
+## Quickstart
+
+On one machine you need no `.env`. Clone Unia and the apps you want beside
+[Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia), then start everything:
+
+```sh
+git clone https://github.com/pranjallk1995/Luna_Sentia.git
+git clone https://github.com/pranjallk1995/Luna_Unia.git
+git clone https://github.com/pranjallk1995/Luna_Visia.git        # and any other Luna_<App> you want
+./Luna_Sentia/luna.sh start
+```
+
+`start` pulls the release images, starts Sentia and waits until it is healthy, then starts
+every cloned app, with Unia last. Once each stack is up, it deletes the images its new ones
+replaced. Open <http://localhost:42069> and sign in as Sentia's owner with one click: a card
+appears for each app that is running. To run your local code instead, use
+`./Luna_Sentia/luna.sh start --build`. Before giving Unia a public address, set your own
+values as described in [Start](#start). Every option of `luna.sh` is in
+[Start everything](https://github.com/pranjallk1995/Luna_Sentia#start-everything).
+
 ## Start
 
 Start [Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia) first and wait until
