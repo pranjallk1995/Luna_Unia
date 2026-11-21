@@ -84,13 +84,13 @@ LUNA_APPS: tuple[LunaApp, ...] = (
     LunaApp(
         key="sentia",
         name="Luna Sentia",
-        description="Shared PostgreSQL, Ollama models, ComfyUI, and single sign-on for every app. Opens user settings; Adminer browses the databases, the monitor shows model calls and the GPU, and ComfyUI makes pictures.",
+        description="Shared PostgreSQL, Ollama models, the image model, and single sign-on for every app. Opens user settings; Adminer browses the databases, and the monitor shows model calls and the GPU.",
         checks=(
             ("Sign-on", "http://luna-sentia-auth:8000/health"),
             ("Adminer", "http://luna-sentia-adminer:8080/"),
             ("Models", "http://luna-sentia-ollama:11434/api/version"),
             ("Monitor", "http://luna-sentia-monitor:8000/health"),
-            ("ComfyUI", "http://luna-sentia-comfyui:8188/system_stats"),
+            ("Images", "http://luna-sentia-imagegen:8000/health"),
         ),
         url="http://localhost:19000",
     ),
@@ -148,15 +148,6 @@ class UIConfig:
             raise RuntimeError("LUNASENTIA_MONITOR_URL must be a valid HTTP(S) URL.")
         return url
 
-    @staticmethod
-    def comfyui_url() -> str:
-        """Luna Sentia's ComfyUI page: LUNASENTIA_COMFYUI_URL, or its localhost port."""
-        url = (os.getenv("LUNASENTIA_COMFYUI_URL", "").strip() or "http://localhost:19002").rstrip("/")
-        parsed = urlparse(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise RuntimeError("LUNASENTIA_COMFYUI_URL must be a valid HTTP(S) URL.")
-        return url
-
     @classmethod
     def from_env(cls) -> "UIConfig":
         """Build and validate UI configuration from environment variables."""
@@ -167,10 +158,10 @@ class UIConfig:
         )
         sso = SSOConfig.from_env()
         apps = tuple(
-            # Sentia's card opens its user settings, with links to Adminer (LUNASENTIA_URL),
-            # the model monitor (LUNASENTIA_MONITOR_URL) and ComfyUI (LUNASENTIA_COMFYUI_URL).
+            # Sentia's card opens its user settings, with links to Adminer (LUNASENTIA_URL)
+            # and the model monitor (LUNASENTIA_MONITOR_URL).
             replace(app, url=f"{sso.public_url}/admin",
-                    also=(("Adminer", cls.app_url(app)), ("Monitor", cls.monitor_url()), ("ComfyUI", cls.comfyui_url())))
+                    also=(("Adminer", cls.app_url(app)), ("Monitor", cls.monitor_url())))
             if app.key == "sentia"
             else replace(app, url=cls.app_url(app))
             for app in LUNA_APPS

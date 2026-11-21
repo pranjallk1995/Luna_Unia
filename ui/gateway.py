@@ -107,7 +107,7 @@ class UIGateway:
 
     def visible_apps(self, user: dict[str, Any] | None) -> tuple[LunaApp, ...]:
         """What this person can use: not hidden apps, and only the owner sees Sentia's services
-        (ComfyUI among them, which has no sign-in) and Socia, the owner's chat."""
+        and Socia, the owner's chat."""
         hidden = set(self.sso.hidden_apps(user))
         if (user or {}).get("user_id") != "owner":
             hidden.update({"sentia", "socia"})

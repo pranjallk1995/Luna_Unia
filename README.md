@@ -43,7 +43,7 @@ Unia shows each person only the apps they can use. Apps the owner has hidden at 
 | `huihui_ai/qwen3-vl-abliterated:8b-instruct` (Qwen3-VL 8B, uncensored) | Ollama, at 16k context for every app; in Socia's chat model's place while Luna looks at a photo | Lexia (`DOCUMENT_MODEL`), Visia (`VISION_MODEL`), Vibia (`CAPTION_MODEL`), Fiora (`OLLAMA_MODEL`), Socia's photo replies (`LUNASOCIA_VISION_MODEL`) | `model_checks/check_model.py`, then Lexia's, Visia's and Vibia's `model_evaluations/` and Socia's cat game |
 | `huihui_ai/qwen3-abliterated:8b` (Qwen3 8B, uncensored) | Ollama, resident at `SENTIA_RESIDENT_CONTEXT` | Socia's chat (`LUNASOCIA_CHAT_MODEL`) | `model_checks/check_model.py --context 8192`, then Socia's `model_evaluations/` |
 | `qwen3-embedding:0.6b` (Qwen3-Embedding 0.6B) | Ollama, resident beside Socia's chat model (1 GB, at 4k) | Lexia's semantic search (`EMBEDDING_MODEL`); what Socia remembers by herself, and the lines of her memory a message is about (`LUNASOCIA_EMBED_MODEL`) | Re-embed with Lexia's `reindex_semantic_search`; train Socia's neurons again (her notebook 03, Part B) |
-| Qwen-Image 2.1 Turbo | ComfyUI | Socia's pictures of Luna | A few pictures by hand |
+| Qwen-Image 2.1 Turbo (4-bit text encoder, int8 diffusion model) | Sentia's imagegen (diffusers), GPU, one picture at a time | Socia's pictures of Luna | A few pictures by hand |
 | SigLIP 2 (`google/siglip2-base-patch16-224`) | Visia itself, GPU only | Visia's meaning search | Pinned in Visia's image; `backfill_metadata` re-embeds |
 | CLAP (`laion/clap-htsat-unfused`) | Vibia itself, GPU or CPU | Vibia's listening and search | Pinned in Vibia's image; every track is heard again |
 | Docling (layout, tables, OCR) | Lexia itself, GPU or CPU | Lexia's page reading | Pinned in Lexia's image |
@@ -56,7 +56,7 @@ Every Luna app but Luna Socia is a React UI plus a FastMCP service on Luna Senti
 server of its own. Each app's data lives in Sentia's PostgreSQL, people sign in through Sentia's
 `auth`, and model calls go through Sentia's model monitor, which times each one, samples
 the GPU and keeps Socia's chat model resident, to its Ollama. Socia's pictures come from
-Sentia's ComfyUI, which takes turns with Ollama on the GPU. Visia's SigLIP 2, Vibia's CLAP
+Sentia's image service (Qwen-Image 2.1 with diffusers), which takes turns with Ollama on the GPU. Visia's SigLIP 2, Vibia's CLAP
 and Lexia's Docling run inside those apps instead, each in a process that exits when idle.
 Orange lines are Visia image URLs that other apps use: food images for Vita, room images
 for Lumia, and cover art for Vibia. Grey dashed lines are planned: links into Fiora (tax
@@ -81,7 +81,7 @@ they answer (2 seconds at most each):
 | --- | --- | --- |
 | Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
 | Socia | `http://luna-socia-ui:8501/health`; it has no MCP server | The chat, for the owner only |
-| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), the model monitor (`luna-sentia-monitor:8000/health`), and ComfyUI (`luna-sentia-comfyui:8188/system_stats`) | Its user settings, with links to Adminer, the model monitor, and ComfyUI |
+| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), the model monitor (`luna-sentia-monitor:8000/health`), and the image service (`luna-sentia-imagegen:8000/health`) | Its user settings, with links to Adminer and the model monitor |
 
 - **Running:** every check answers. The card opens the app.
 - **`MCP not responding`** (or another service): the UI answers but a service behind it
@@ -148,9 +148,6 @@ LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
   them from other devices, route public hostnames to those ports in your tunnel and set
   the two addresses to them; the monitor signs in through Sentia, so its address must be
   under `SENTIA_AUTH_COOKIE_DOMAIN`. Each link goes while its service is down.
-- Sentia's card also links to ComfyUI, which makes Luna Socia's pictures, at
-  `LUNASENTIA_COMFYUI_URL` (default `http://localhost:19002`). ComfyUI has no sign-in, so
-  keep it off the tunnel unless something else guards it.
 - Luna Socia's card, also for the owner only, opens the chat.
 - Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see
   [Single sign-on](https://github.com/pranjallk1995/Luna_Sentia#single-sign-on). With

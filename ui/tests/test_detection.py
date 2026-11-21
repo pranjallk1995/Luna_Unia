@@ -61,7 +61,7 @@ class DetectionTests(unittest.TestCase):
         status = detector({"luna-sentia-adminer", "luna-sentia-auth"}).detect(LUNA_APPS)[-1]
         self.assertEqual(status.app.key, "sentia")
         self.assertIs(status.state, AppState.DEGRADED)
-        self.assertEqual(status.down, ("Models", "Monitor", "ComfyUI"))
+        self.assertEqual(status.down, ("Models", "Monitor", "Images"))
 
     def test_sentia_opens_while_sign_on_answers_even_without_adminer(self):
         status = detector({"luna-sentia-auth"}).detect(LUNA_APPS)[-1]
@@ -75,14 +75,11 @@ class AppUrlTests(unittest.TestCase):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAUNIA_URL_TEMPLATE": "https://{app}.example.com"}, clear=True):
             sentia = UIConfig.from_env().apps[-1]
         self.assertEqual(sentia.url, "https://auth.example.com/admin")
-        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19003"),
-                                       ("ComfyUI", "http://localhost:19002")))
-        overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/",
-                     "LUNASENTIA_COMFYUI_URL": "https://comfy.example.com/"}
+        self.assertEqual(sentia.also, (("Adminer", "http://localhost:19000"), ("Monitor", "http://localhost:19003")))
+        overrides = {"LUNASENTIA_URL": "https://db.example.com/", "LUNASENTIA_MONITOR_URL": "https://monitor.example.com/"}
         with patch.dict(os.environ, {**BASE_ENV, **overrides}, clear=True):
             self.assertEqual(UIConfig.from_env().apps[-1].also,
-                             (("Adminer", "https://db.example.com"), ("Monitor", "https://monitor.example.com"),
-                              ("ComfyUI", "https://comfy.example.com")))
+                             (("Adminer", "https://db.example.com"), ("Monitor", "https://monitor.example.com")))
 
     def test_urls_default_to_localhost_ports_and_can_be_overridden(self):
         with patch.dict(os.environ, {**BASE_ENV, "LUNAVIBIA_URL": "https://vibia.example.com/"}, clear=True):
