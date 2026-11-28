@@ -1,103 +1,34 @@
 # Luna Unia
 
 ![Docker required](https://img.shields.io/badge/Docker-required-2496ED?logo=docker&logoColor=white)
-![Docker Compose v2](https://img.shields.io/badge/Docker_Compose-v2-2496ED?logo=docker&logoColor=white)
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-111111?logo=ollama&logoColor=white)
+![Luna Sentia required](https://img.shields.io/badge/Luna_Sentia-required-6C5CE7?logo=docker&logoColor=white)
 ![Status: v2.0.1](https://img.shields.io/badge/Status-v2.0.1-2EA043)
+
+**One home for every Luna app.** Unia shows a card for each Luna app, says which ones are running, and opens them
+with the shared sign-in, so you never sign in twice.
 
 <p align="center">
   <a href="docs/luna-unia-showcase.mp4"><img src="docs/luna-unia-showcase.webp" alt="From Google sign-in to the Luna Unia home, then into the apps" width="900"></a>
 </p>
 
-<p align="center"><em>From Google sign-in to the Luna Unia home, then into the apps. Select it for the sharper video.</em></p>
+## What it does
 
-## One home for every Luna app
-
-Luna Unia is the front door to the Luna apps. It checks which Luna stacks are running
-and shows each one as a card with its icon, name, and description. Pick a running
-app to go to it; the shared sign-in means it opens without signing in again.
-
-It has a UI only: no MCP service, no database, and no model calls. It reads nothing
-from the apps except whether they answer.
+- **Live status:** each app is **running**, **not running** (dimmed), or running with a service not answering. It
+  checks every 15 seconds, or at once with **Check again**.
+- **One click in:** a running app's card opens it, already signed in.
+- **Only what you can use:** apps the owner hid are left out, and only the owner sees Sentia and Luna Socia.
+- **Nothing stored:** a UI only, with no database, no MCP server and no model calls. It never reads the apps' data,
+  only whether they answer.
 
 <p align="center">
-  <img src="docs/showcase.png" alt="Luna Unia showing all seven Luna stacks running, each card linking to its app">
+  <img src="docs/showcase.png" alt="Luna Unia showing all seven Luna stacks running, each card linking to its app" width="900">
 </p>
-
-## Who sees what
-
-Unia shows each person only the apps they can use. Apps the owner has hidden at Luna Sentia's `/admin` do not appear, within about a minute, and only the owner sees Sentia's services and Luna Socia. Set `LUNAUNIA_ALLOWED_EMAILS` to `*` for everyone with a Luna account, to a comma-separated list, or leave it blank (the default) for Sentia's owner only. Unia keeps no data of its own; see [Users and separate storage](https://github.com/pranjallk1995/Luna_Sentia#users-and-separate-storage).
-
-## Architecture
-
-### Luna ecosystem
-
-![Luna ecosystem architecture](docs/luna-ecosystem.svg)
-
-<!-- luna-models:start -->
-**Which app uses which model.** All of them run on Luna Sentia, which keeps Socia's chat model on the GPU and lets the others visit; see its [Models](https://github.com/pranjallk1995/Luna_Sentia#models) and [Changing a model](https://github.com/pranjallk1995/Luna_Sentia#changing-a-model).
-
-| Model | Served by | Used by | Before changing it |
-| --- | --- | --- | --- |
-| `huihui_ai/qwen3-vl-abliterated:8b-instruct` (Qwen3-VL 8B, uncensored) | Ollama, at 16k context for every app; in Socia's chat model's place while Luna looks at a photo | Lexia (`DOCUMENT_MODEL`), Visia (`VISION_MODEL`), Vibia (`CAPTION_MODEL`), Fiora (`OLLAMA_MODEL`), Socia's photo replies (`LUNASOCIA_VISION_MODEL`) | `model_checks/check_model.py`, then Lexia's, Visia's and Vibia's `model_evaluations/` and Socia's cat game |
-| `huihui_ai/qwen3-abliterated:8b` (Qwen3 8B, uncensored) | Ollama, resident at `SENTIA_RESIDENT_CONTEXT` | Socia's chat (`LUNASOCIA_CHAT_MODEL`) | `model_checks/check_model.py --context 8192`, then Socia's `model_evaluations/` |
-| `qwen3-embedding:0.6b` (Qwen3-Embedding 0.6B) | Ollama, resident beside Socia's chat model (1 GB, at 4k) | Lexia's semantic search (`EMBEDDING_MODEL`); what Socia remembers by herself, and the lines of her memory a message is about (`LUNASOCIA_EMBED_MODEL`) | Re-embed with Lexia's `reindex_semantic_search`; train Socia's neurons again (her notebook 03, Part B) |
-| Qwen-Image 2.1 Turbo (4-bit text encoder, int8 diffusion model) | Sentia's imagegen (diffusers), GPU, one picture at a time | Socia's pictures of Luna | A few pictures by hand |
-| SigLIP 2 (`google/siglip2-base-patch16-224`) | Visia itself, GPU only | Visia's meaning search | Pinned in Visia's image; `backfill_metadata` re-embeds |
-| CLAP (`laion/clap-htsat-unfused`) | Vibia itself, GPU or CPU | Vibia's listening and search | Pinned in Vibia's image; every track is heard again |
-| Docling (layout, tables, OCR) | Lexia itself, GPU or CPU | Lexia's page reading | Pinned in Lexia's image |
-| Whisper `large-v3-turbo`, Kokoro 82M | Socia itself, GPU (about 1.5 GB, and 0.2 GB for CUDA, loaded at start) or CPU | Socia's voice messages and Luna's voice (`LUNASOCIA_STT_MODEL`, `LUNASOCIA_TTS_VOICE`, `LUNASOCIA_VOICE_DEVICE`) | Listen to a few replies; downloaded on first use |
-| InsightFace `buffalo_l` (SCRFD, ArcFace) | Socia itself, GPU (about 0.4 GB, loaded with the vision model for a photo) or CPU | Whose faces are in a photo, Luna's or the owner's, told to her vision model | Socia's `model_evaluations/self_recognition.py`; non-commercial licence |
-<!-- luna-models:end -->
-
-Every Luna app but Luna Socia is a React UI plus a FastMCP service on Luna Sentia's
-`luna_sentia_network`; Socia, the owner's chat with Luna, is one service with no MCP
-server of its own. Each app's data lives in Sentia's PostgreSQL, people sign in through Sentia's
-`auth`, and model calls go through Sentia's model monitor, which times each one, samples
-the GPU and keeps Socia's chat model resident, to its Ollama. Socia's pictures come from
-Sentia's image service (Qwen-Image 2.1 with diffusers), which takes turns with Ollama on the GPU. Visia's SigLIP 2, Vibia's CLAP
-and Lexia's Docling run inside those apps instead, each in a process that exits when idle.
-Orange lines are Visia image URLs that other apps use: food images for Vita, room images
-for Lumia, and cover art for Vibia. The rose line is lab reports: Vita reads the health reports Lexia stores,
-with their results and PDFs, for its Health reports page. Grey dashed lines are planned: links into Fiora (tax
-details from Lexia, transaction image and icon URLs from Visia). Luna Unia is the one home
-for the other apps, on port 42069: it checks which Luna stacks are running and opens each
-one with the shared sign-in. The purple line is the mood and beats of the track Vibia
-plays, which Lumia's lights follow. The green line is Socia using every app's MCP tools,
-and Sentia's, as the owner: it signs in to them with OAuth like any MCP client, so Luna can
-play music, dim the lights or find a photo from the chat.
-
-| Component | Technology | Purpose |
-| --- | --- | --- |
-| UI (`luna-unia-ui`, `:42069`) | React + TypeScript (Vite), served by a Starlette gateway | App cards with live status; each running app's card opens it |
-| Sign-in | Luna Sentia's `auth` | The shared `luna_sso` session, plus Unia's own allowlist |
-
-## How detection works
-
-Unia joins `luna_sentia_network` and asks every stack's services, all at once, whether
-they answer (2 seconds at most each):
-
-| Stack | Checks | Card opens |
-| --- | --- | --- |
-| Visia, Vita, Lumia, Fiora, Lexia, Vibia | `http://luna-<app>-ui:8501/_stcore/health` (kept by the React apps as an alias of `/health`), then `http://luna-<app>-mcp:8000/health` | The app's UI |
-| Socia | `http://luna-socia-ui:8501/health`; it has no MCP server | The chat, for the owner only |
-| Sentia | Adminer (`luna-sentia-adminer:8080`), sign-on (`luna-sentia-auth:8000/health`), models (`luna-sentia-ollama:11434/api/version`), the model monitor (`luna-sentia-monitor:8000/health`), and the image service (`luna-sentia-imagegen:8000/health`) | Its user settings, with links to Adminer and the model monitor |
-
-- **Running:** every check answers. The card opens the app.
-- **`MCP not responding`** (or another service): the UI answers but a service behind it
-  does not. The card still opens the app, which may show errors until that service is up.
-- **Not running:** the UI does not answer. The card is dimmed and does not open.
-
-The grid checks again every 15 seconds while the page is open; **Check again** checks
-at once. Unia finds stacks by these network aliases, so it needs no Docker socket and
-sees nothing else on the host. The list of stacks, their descriptions, and their
-localhost ports is `LUNA_APPS` in `ui/config.py`; add a new app there.
 
 ## Quickstart
 
-On one machine you need no `.env`. Clone Unia and the apps you want beside
-[Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia), then start everything:
+Clone Unia and the apps you want beside [Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia), then start
+everything. On one machine you need no `.env`:
 
 ```sh
 git clone https://github.com/pranjallk1995/Luna_Sentia.git
@@ -106,76 +37,24 @@ git clone https://github.com/pranjallk1995/Luna_Visia.git        # and any other
 ./Luna_Sentia/luna.sh start
 ```
 
-`start` pulls the release images, starts Sentia and waits until it is healthy, then starts
-every cloned app, with Unia last. Once each stack is up, it deletes the images its new ones
-replaced. Open <http://localhost:42069> and sign in as Sentia's owner with one click: a card
-appears for each app that is running. To run your local code instead, use
-`./Luna_Sentia/luna.sh start --build`. Before giving Unia a public address, set your own
-values as described in [Start](#start). Every option of `luna.sh` is in
-[Start everything](https://github.com/pranjallk1995/Luna_Sentia#start-everything).
+Open <http://localhost:42069> and sign in as Sentia's owner. Who else may use Unia, and a public address, are in
+[Getting started](https://github.com/pranjallk1995/Luna_Unia/wiki/Getting-Started).
 
-<p align="center">
-  <a href="https://github.com/pranjallk1995/Luna_Sentia/blob/main/assets/luna-sh-demo.mp4"><img src="https://raw.githubusercontent.com/pranjallk1995/Luna_Sentia/main/assets/luna-sh-demo.webp" alt="A terminal running luna.sh: starting Sentia and every app, showing one app's containers, stopping and starting Lumia alone, listing every app's containers, then watching Lumia while a saved file syncs and restarts its UI" width="900"></a>
-</p>
+## Documentation
 
-<p align="center"><em>Start everything, check one app, stop and start it alone, list every app, then
-develop with <code>--watch</code>. Select it for the sharper video.</em></p>
+The [wiki](https://github.com/pranjallk1995/Luna_Unia/wiki) has the full reference:
 
-## Releases
+| Page | What's in it |
+| --- | --- |
+| [Home](https://github.com/pranjallk1995/Luna_Unia/wiki) | What Unia is |
+| [Getting started](https://github.com/pranjallk1995/Luna_Unia/wiki/Getting-Started) | Setup, `.env`, sign-in |
+| [Architecture](https://github.com/pranjallk1995/Luna_Unia/wiki/Architecture) | How detection works, who sees what, adding an app |
+| [Development](https://github.com/pranjallk1995/Luna_Unia/wiki/Development) | Development workflow and tests |
 
-Each release is on the [Releases page](https://github.com/pranjallk1995/Luna_Unia/releases), with what changed and how to
-upgrade. The `docker-compose.yaml` on `main` names the images of the latest release, so
-`git pull`, then `./Luna_Sentia/luna.sh start`, updates to it. When a release needs a newer
-Luna Sentia, its notes say so: upgrade Sentia first. The release of every Luna app is
-listed in [Luna Sentia's Releases](https://github.com/pranjallk1995/Luna_Sentia#releases).
+The UI follows [UI_STYLE_GUIDE.md](UI_STYLE_GUIDE.md).
 
-## Start
+## Releases and development
 
-Start [Luna Sentia](https://github.com/pranjallk1995/Luna_Sentia) first and wait until
-its `auth` service is healthy; Unia needs no database. `../luna.sh start` starts Sentia,
-every app, and Unia last.
-
-A fresh clone needs no `.env`: `luna.sh start` runs Unia with localhost defaults, where only Luna Sentia's owner may use it. To change that, create a private `.env` from `.env.example`:
-
-```dotenv
-LUNAUNIA_ALLOWED_EMAILS=*
-LUNAUNIA_URL_TEMPLATE=
-LUNA_SSO_URL=http://localhost:19001
-LUNA_SSO_INTERNAL_URL=http://luna-sentia-auth:8000
-```
-
-- `LUNAUNIA_URL_TEMPLATE` is where the cards send the browser: `{app}` becomes `visia`,
-  `vita`, `lumia`, `fiora`, `lexia`, `vibia`, or `socia`. Leave it blank to open each app at its
-  localhost port (18500 to 18506). With a tunnel, set it, for example
-  `https://{app}.example.com`, and `LUNA_SSO_URL` to Sentia's public sign-on address. `LUNA<APP>_URL`, such as `LUNAVIBIA_URL`, sets one
-  app's address when it does not follow the pattern.
-- Luna Sentia's card opens its user settings, `/admin` at `LUNA_SSO_URL`, and only the
-  owner sees it. Beside them are links to Adminer at `LUNASENTIA_URL` (default
-  `http://localhost:19000`, which works only on the machine running Luna) and to the
-  model monitor at `LUNASENTIA_MONITOR_URL` (default `http://localhost:19003`). To open
-  them from other devices, route public hostnames to those ports in your tunnel and set
-  the two addresses to them; the monitor signs in through Sentia, so its address must be
-  under `SENTIA_AUTH_COOKIE_DOMAIN`. Each link goes while its service is down.
-- Luna Socia's card, also for the owner only, opens the chat.
-- Sign-in goes through Luna Sentia's single sign-on, as in every Luna app; see
-  [Single sign-on](https://github.com/pranjallk1995/Luna_Sentia#single-sign-on). With
-  `SENTIA_AUTH_COOKIE_DOMAIN` set, Unia must be reached under that domain, like every
-  app: route a public hostname such as `unia.example.com` to `127.0.0.1:42069` in your
-  tunnel.
-
-```sh
-docker compose up -d
-```
-
-- UI: <http://127.0.0.1:42069>
-
-## Development workflow
-
-```sh
-docker compose up -d --build
-docker compose exec ui python -m unittest discover -s tests -t .
-```
-
-Tests use a fake network (`httpx.MockTransport`), so they need no running stacks. The
-UI follows the shared [UI style guide](UI_STYLE_GUIDE.md); it has no navbar, which the
-guide lists under "Known deviations".
+Releases are on the [Releases page](https://github.com/pranjallk1995/Luna_Unia/releases). To update: `git pull`, then
+`./Luna_Sentia/luna.sh start`. To run your local code and reload it as you edit:
+`./Luna_Sentia/luna.sh start --build --watch unia`.
